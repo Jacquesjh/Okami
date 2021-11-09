@@ -6,8 +6,11 @@ from pydantic import BaseModel
 
 class Sensor(BaseModel):
 
-    location: Tuple[float, float]
-    _search : List[List[float]]
+    x: float
+    y: float
+    z: float = 0
+    
+    vision  : Optional[List[List[float]]]
     
 # %%
 

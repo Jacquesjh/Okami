@@ -1,4 +1,4 @@
-# %%
+
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
@@ -10,35 +10,41 @@ import plotly.express as px
 from sensor import Sensor
 from source import Source
 
-class Room(BaseModel):
+class Room:
 
-    sensors : Optional[List[Sensor]]
-    sources : Optional[List[Source]]
-
-    grid    : Optional[List[List[float]]]
-
-    vertices: Optional[List[Tuple[float, float]]]
+    sensors   : List[Sensor]
+    sources   : List[Source]
+    grid      : List[List[float]]
+    vertices  : List[Tuple[float, float]]    
+    resolution: float
     
+
+    def __init__(self, resolution: float = 0.25):
+        self.resolution = resolution
+
+
     def plot_grid(self) -> None:
-        fig = px.scatter(x = self.x, y = self.y)
+        
+        x = self.x + [vertix[0] for vertix in self.vertices]
+        y = self.y + [vertix[1] for vertix in self.vertices]
+        fig = px.scatter(x = x, y = y)
         fig.show()
 
 
-    @classmethod
-    def create_grid(cls) -> None:
+    def create_grid(self) -> None:
 
         if speedups.enabled == False:
             speedups.enable()
 
         valid_points = []
 
-        vertices = cls._vertices
+        vertices = self.vertices
         points   = [Point(vertix[0], vertix[1]) for vertix in vertices]
 
         # determine maximum edges
         polygon = Polygon(points)
         latmin, lonmin, latmax, lonmax = polygon.bounds
-        resolution = 0.1
+        resolution = 0.25
 
         points = []
         for lat in np.arange(latmin, latmax, resolution):
@@ -52,12 +58,16 @@ class Room(BaseModel):
         x = [point.coords.xy[0][0] for point in valid_points]
         y = [point.coords.xy[1][0] for point in valid_points]
 
-        cls.polygon = Polygon(valid_points)
-        cls.x = x
-        cls.y = y
+        self.polygon = Polygon(valid_points)
+        self.x = x
+        self.y = y
 
-    @classmethod
-    def enter_vertices(cls) -> None:
+    def set_vertixes(self, vertices: List[Tuple[float, float]]) -> None:
+
+        self.vertices = vertices
+
+
+    def enter_vertices(self) -> None:
 
         print(" ------- Please enter the vertices of the room ------- ")
         print(" ------- Use the following notation: 'x, y' -------")
@@ -71,10 +81,14 @@ class Room(BaseModel):
             except:
                 break
         
-        cls.vertices = vertices
+        self.vertices = vertices
 
-    @classmethod
-    def enter_sensors(cls) -> None:
+    def set_sensors(self, sensors: List[Sensor]) -> None:
+
+        self.sensors = [sensor1, sensor2, sensor3, sensor4]
+
+
+    def enter_sensors(self) -> None:
         
         print(" ------- Please enter the position of the sensors ------- ")
         print(" ------- Use the following notation: 'x, y' -------")
@@ -88,19 +102,4 @@ class Room(BaseModel):
             except:
                 break
         
-        cls.sensors = sensors
-
-# %%
-
-room = Room()
-
-# %%
-
-room.enter_vertices()
-# %%
-
-
-room.create_grid()
-# %%
-room.plot_grid()
-# %%
+        self.sensors = sensors
