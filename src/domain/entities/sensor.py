@@ -1,5 +1,5 @@
-# %%
-from typing import Any, Dict, List, Tuple
+
+from typing import Any, Dict, List, Tuple, Optional
 
 import numpy as np
 from pydantic import BaseModel
@@ -12,9 +12,3 @@ class Sensor(BaseModel):
     
     vision  : Optional[List[List[float]]]
     
-# %%
-
-
-sensor = Sensor(location = (0.5, 1.5))
-
-# %%

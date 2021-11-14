@@ -7,15 +7,16 @@ from shapely.geometry import Polygon, Point
 from shapely import speedups
 import plotly.express as px
 
-from sensor import Sensor
-from source import Source
+from src.domain.entities.sensor import Sensor
+from src.domain.entities.source import Source
+
 
 class Room:
 
     sensors   : List[Sensor]
     sources   : List[Source]
     grid      : List[List[float]]
-    vertices  : List[Tuple[float, float]]    
+    vertices  : List[Tuple[float, float]]
     resolution: float
     
 
@@ -89,10 +90,10 @@ class Room:
 
 
     def enter_sensors(self) -> None:
-        
+
         print(" ------- Please enter the position of the sensors ------- ")
         print(" ------- Use the following notation: 'x, y' -------")
-        
+
         sensors = []
         while True:
             try:
@@ -101,5 +102,28 @@ class Room:
                 sensors.append(sensor)
             except:
                 break
-        
+
         self.sensors = sensors
+
+# if __name__ == "__main__":
+#     room = Room()
+
+#     vertix1 = (0, 0)
+#     vertix2 = (5, 0)
+#     vertix3 = (0, 5)
+#     vertix4 = (5, 5)
+
+#     vertices = [vertix1, vertix2, vertix3, vertix4]
+
+#     room.set_vertixes(vertices = vertices)
+
+#     sensor1 = Sensor(x = 2, y = 1, z = 1.5)
+#     sensor2 = Sensor(x = 2, y = 1, z = 1.5)
+#     sensor3 = Sensor(x = 3, y = 2, z = 1.5)
+#     sensor4 = Sensor(x = 2, y = 3, z = 1.5)
+
+#     sensors = [sensor1, sensor2, sensor3, sensor4]
+#     room.set_sensors(sensors = sensors)
+
+#     room.create_grid()
+#     room.plot_grid()
