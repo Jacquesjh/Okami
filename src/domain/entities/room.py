@@ -86,7 +86,7 @@ class Room:
 
     def set_sensors(self, sensors: List[Sensor]) -> None:
 
-        self.sensors = [sensor1, sensor2, sensor3, sensor4]
+        self.sensors = sensors
 
 
     def enter_sensors(self) -> None:
@@ -105,25 +105,8 @@ class Room:
 
         self.sensors = sensors
 
-# if __name__ == "__main__":
-#     room = Room()
 
-#     vertix1 = (0, 0)
-#     vertix2 = (5, 0)
-#     vertix3 = (0, 5)
-#     vertix4 = (5, 5)
+    def compute_visions(self):
 
-#     vertices = [vertix1, vertix2, vertix3, vertix4]
-
-#     room.set_vertixes(vertices = vertices)
-
-#     sensor1 = Sensor(x = 2, y = 1, z = 1.5)
-#     sensor2 = Sensor(x = 2, y = 1, z = 1.5)
-#     sensor3 = Sensor(x = 3, y = 2, z = 1.5)
-#     sensor4 = Sensor(x = 2, y = 3, z = 1.5)
-
-#     sensors = [sensor1, sensor2, sensor3, sensor4]
-#     room.set_sensors(sensors = sensors)
-
-#     room.create_grid()
-#     room.plot_grid()
+        for sensor in self.sensors:
+            sensor.compute_vision(self.x, self.y)
