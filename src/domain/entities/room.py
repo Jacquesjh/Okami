@@ -1,11 +1,13 @@
 
 from typing import Any, Dict, List, Optional, Tuple
 
+import pandas as pd
 import numpy as np
 from pydantic import BaseModel
 from shapely.geometry import Polygon, Point
 from shapely import speedups
 import plotly.express as px
+import plotly.graph_objects as go
 
 from src.domain.entities.sensor import Sensor
 from src.domain.entities.source import Source
@@ -14,7 +16,7 @@ from src.domain.entities.source import Source
 class Room:
 
     sensors   : List[Sensor]
-    sources   : List[Source]
+    sources   : List[Source] = []
     grid      : List[List[float]]
     vertices  : List[Tuple[float, float]]
     resolution: float
@@ -26,9 +28,24 @@ class Room:
 
     def plot_grid(self) -> None:
         
-        x = self.x + [vertix[0] for vertix in self.vertices]
-        y = self.y + [vertix[1] for vertix in self.vertices]
+        x = self.x
+        y = self.y
+        
         fig = px.scatter(x = x, y = y)
+        
+        x_s = [sensor.x for sensor in self.sensors]
+        y_s = [sensor.y for sensor in self.sensors]
+        x_p = [source.x for source in self.sources]
+        y_p = [source.y for source in self.sources]
+        x_v = [vertix[0] for vertix in self.vertices]
+        y_v = [vertix[1] for vertix in self.vertices]
+        
+        fig.add_trace(go.Scatter(x = x_s, y = y_s, text = ["Sensor 1", "Sensor 2", "Sensor 3", "Sensor 4"], mode = "markers", name = "text"))
+        
+        if x_p is not [] and y_p is not []:
+            fig.add_trace(go.Scatter(x = x_p, y = y_p, text = ["Source 1", "Source 2", "Source 3", "Source 4"], mode = "markers", name = "text"))
+        
+        fig.add_trace(go.Scatter(x = x_v, y = y_v, text = ["Vertix 1", "Vertix 2", "Vertix 3", "Vertix 4"], mode = "markers", name = "text"))
         fig.show()
 
 
@@ -63,6 +80,7 @@ class Room:
         self.x = x
         self.y = y
 
+
     def set_vertixes(self, vertices: List[Tuple[float, float]]) -> None:
 
         self.vertices = vertices
@@ -84,6 +102,7 @@ class Room:
         
         self.vertices = vertices
 
+
     def set_sensors(self, sensors: List[Sensor]) -> None:
 
         self.sensors = sensors
@@ -95,11 +114,13 @@ class Room:
         print(" ------- Use the following notation: 'x, y' -------")
 
         sensors = []
+
         while True:
             try:
                 sensor = input()
                 sensor = (float(sensor[0]), float(sensor[3]))
                 sensors.append(sensor)
+
             except:
                 break
 
@@ -110,3 +131,42 @@ class Room:
 
         for sensor in self.sensors:
             sensor.compute_vision(self.x, self.y)
+
+        for source in self.sources:
+            source.compute_vision(self.x, self.y)
+
+
+    def search_sources(self):
+
+        self.compute_visions()
+        
+        sensors_list = self.sensors.copy()
+
+        for sensor in sensors_list:
+            sensors_list.remove(sensor)
+            aux_list = sensors_list.copy()
+
+            for pair_sensor in aux_list:
+                dt = sensor.vision - pair_sensor.vision
+                
+                dt.applymap(self._rectify_vision)
+
+                for row in dt.index.tolist():
+
+                    for column in dt.columns:
+
+                        if dt.loc[row, column] == 1:
+                            value = (sensor.loc[row, column] + pair_sensor.loc[row, column])/2
+                            new_source = Source(x = row, y = column, value = value)
+
+                            self.sources.append(new_source)
+            
+
+
+    def _rectify_vision(self, value: float) -> int:
+
+        if abs(value) > 100 or pd.isna(value):
+            return 0
+
+        else:
+            return 1
