@@ -42,8 +42,8 @@ class Room:
         resolution = 0.25
 
         points = []
-        for lat in np.arange(latmin, latmax, resolution):
-            for lon in np.arange(lonmin, lonmax, resolution):
+        for lat in np.arange(0, latmax, resolution):
+            for lon in np.arange(0, lonmax, resolution):
                 points.append(Point((round(lat, 4), round(lon, 4))))
 
         valid_points.extend([i for i in points if polygon.contains(i)])
@@ -53,7 +53,7 @@ class Room:
         y = [point.coords.xy[1][0] for point in valid_points]
 
         self.polygon = Polygon(valid_points)
-        self.grid = np.array([x, y])
+        self.grid    = np.array([x, y])
 
 
     def compute_visions(self) -> None:
